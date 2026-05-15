@@ -1,0 +1,11 @@
+- nodeset:
+    name: centos-9-stream
+    nodes:
+      name: centos-9-stream
+      label: centos-9-stream
+
+- nodeset:
+    name: debian-trixie-4GB
+    nodes:
+      name: debian-trixie
+      label: debian-trixie-4GB

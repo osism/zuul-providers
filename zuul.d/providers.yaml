@@ -1,0 +1,37 @@
+# Regiocloud
+- section:
+    name: regiocloud
+    connection: regiocloud-a-ci
+    label-defaults:
+      boot-timeout: 120
+      key-name: osism-ci
+    image-defaults:
+      import-timeout: 1800  # 30 minutes
+    launch-timeout: 600
+    images:
+      - centos-9-stream
+      - debian-bookworm
+      - debian-trixie
+      - ubuntu-jammy
+      - ubuntu-noble
+    labels:
+      - centos-9-stream
+      - debian-bookworm
+      - debian-bookworm-large
+      - debian-trixie
+      - debian-trixie-large
+      - ubuntu-jammy
+      - ubuntu-jammy-large
+      - ubuntu-noble
+      - ubuntu-noble-large
+    flavors:
+      - name: 4GB
+        description: 2vcpu, 4GB ram, 10GB disk
+        flavor-name: SCS-2V-4-10
+      - name: 32GB
+        description: 8vcpu, 32GB ram, 100GB disk
+        flavor-name: SCS-8V-32-100
+
+- provider:
+    name: regiocloud-a
+    section: regiocloud

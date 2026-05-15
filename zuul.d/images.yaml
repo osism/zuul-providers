@@ -1,0 +1,19 @@
+- image:
+    name: centos-9-stream
+    type: zuul
+
+- image:
+    name: debian-bookworm
+    type: zuul
+
+- image:
+    name: debian-trixie
+    type: zuul
+
+- image:
+    name: ubuntu-jammy
+    type: zuul
+
+- image:
+    name: ubuntu-noble
+    type: zuul

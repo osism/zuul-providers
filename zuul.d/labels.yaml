@@ -1,0 +1,53 @@
+- label:
+    name: centos-9-stream
+    image: centos-9-stream
+    flavor: SCS-2V-4-10
+    max-ready-age: 1800
+
+- label:
+    name: debian-bookworm
+    image: debian-bookworm
+    flavor: SCS-2V-4-10
+    max-ready-age: 1800
+
+- label:
+    name: debian-bookworm-large
+    image: debian-bookworm
+    flavor: SCS-8V-32-100
+    max-ready-age: 1800
+
+- label:
+    name: debian-trixie
+    image: debian-trixie
+    flavor: SCS-2V-4-10
+    max-ready-age: 1800
+
+- label:
+    name: debian-trixie-large
+    image: debian-trixie
+    flavor: SCS-8V-32-100
+    max-ready-age: 1800
+
+- label:
+    name: ubuntu-jammy
+    image: ubuntu-jammy
+    flavor: SCS-2V-4-10
+    max-ready-age: 1800
+
+- label:
+    name: ubuntu-jammy-large
+    image: ubuntu-jammy
+    flavor: SCS-8V-32-100
+    max-ready-age: 1800
+
+- label:
+    name: ubuntu-noble
+    image: ubuntu-noble
+    flavor: SCS-2V-4-10
+    max-ready-age: 1800
+
+- label:
+    name: ubuntu-noble-large
+    image: ubuntu-noble
+    flavor: SCS-8V-32-100
+    max-ready-age: 1800

@@ -1,0 +1,225 @@
+- job:
+    name: osism-build-diskimage-base
+    description: |
+      The abstract base job for building VM images used in OSISM's Zuul
+
+      If the variable ``image_upload_secret`` is provided (as a
+      secret) this job will upload the resulting image (this should be
+      done in image build pipelines).  Otherwise, it will only build
+      the image without uploading it (this can be useful for check
+      pipelines).
+    parent: build-diskimage
+    timeout: 10800
+    post-timeout: 10800
+    abstract: true
+    # This causes us to run DIB from the git repo instead of the
+    # latest release.
+    required-projects:
+      - openstack/diskimage-builder
+    # Temporarily fix the image build jobs to run on the nodepool
+    # label without using nodesets so that we can change the nodeset
+    # definitions without triggering image rebuilds during the
+    # transition.
+    nodeset:
+      nodes:
+        - name: ubuntu-noble
+          label: ubuntu-noble
+    pre-run:
+      - playbooks/osism-build-diskimage-base/pre.yaml
+    post-run:
+      - playbooks/osism-build-diskimage-base/post.yaml
+    files:
+      - 'dib-elements/.*'
+      - 'playbooks/osism-build-diskimage-base/.*'
+      - 'roles/make-source-repositories-cache/.*'
+    vars:
+      build_diskimage_formats: "{{ zuul.image_formats | default(['qcow2', 'raw', 'vhd']) }}"
+      # /opt/dib_tmp is an ephemeral disk if present
+      build_diskimage_image_root: "/opt/dib_tmp/dib-images"
+      build_diskimage_elements: &base_elements
+        - vm
+        - simple-init
+        - growroot
+        - infra-package-needs
+        - zuul-worker
+      build_diskimage_environment:
+        TMPDIR: /opt/dib_tmp
+        ## ELEMENTS_PATH: "{{ ansible_user_dir }}/{{ zuul.projects['opendev.org/opendev/zuul-providers'].src_dir }}/dib-elements"
+        # TODO: Do we want streaming logs?
+        DIB_QUIET: '0'
+        DIB_NO_TMPFS: '1'
+        DIB_CHECKSUM: '1'
+        DIB_IMAGE_CACHE: /opt/dib_cache
+        DIB_JOURNAL_SIZE: '512'
+        DIB_GRUB_TIMEOUT: '0'
+        GIT_HTTP_LOW_SPEED_TIME: '300'
+        GIT_HTTP_LOW_SPEED_LIMIT: '1000'
+        DIB_SHOW_IMAGE_USAGE: '1'
+        ZUUL_USER_SSH_PUBLIC_KEY: "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQDyCU/YncItaW8asyKb/vJr0T+VIfFWvKfyqeenmZcMzY9lJ7SbYz0I+81pfAxgBIDpiPBs6M6p2r4cumkzuazjMPK0o8k32uZgnIdE8l51+Fdhf1U0ejhiLhhMlP129im20wp9uf0U5KrzZ07aRT6UDV2hT85qizPMPcwyIy6zCFtG8ac+OIyHjICHz/j3toK99UGcpmz9bxzM3cZ9+Xo9HtizzAXzAbO+MPRGe7342GUcBQPl51ZPw0wu3+OSDgXRNAvQZn4KP5GCJhaTgykVsuEtEwnPD4R4+PbVOsihIIlVhSk5dA98+Ghda3ibFuD+BHvBu6uLtEy6oGWgHxRUdoRkGFg2ItAdjTe4FfTobuaAeGPyHLCmbyUMCKTLF0zvZhgayuzjy0oHw6N/OMXMFkPD6g3zt+9TwTqoOjsXex2usTrNnfmO6ml0yeyfWoR7Air1dHrXmrz3MDniSu0/vaxKSirzzev4UeKkJyobJ87uL1ebQ42mBFhv98dD1Bqzx8Bm4OTSADSrwtGaSw9KXvQ+R+r7oC4JuXJP/LKGQAh7wfNnkUabgSgSJaC6aVADo0qTFnVnd1SqA/0oOaV0RyUK6mAZv9+FIVlPTVtNijdsJf5NWuuKhLrH51DJqBZpGblTvNcFsi5AxDLyZZgIrzfSgYs8xVDUW6HRvYW7mw== zuul-nodepool-worker-key"
+
+- job:
+    name: osism-dispatch-promote-diskimage
+    description: |
+      Decide which diskimage promotion jobs should run
+    run: playbooks/osism-promote-diskimage/dispatch.yaml
+    nodeset:
+      nodes: []
+    vars:
+      # TODO: changeme promote_artifact_api: "https://zuul.opendev.org/api/tenant/{{ zuul.tenant }}"
+      promote_artifact_pipeline: gate
+      build_artifact_job: "{{ child_job | regex_replace('^osism-promote', 'osism-build') }}"
+
+- job:
+    name: osism-promote-diskimage-base
+    description: |
+      Promote diskimage gate builds to production
+    abstract: true
+    run: playbooks/osism-promote-diskimage/run.yaml
+    nodeset:
+      nodes: []
+    vars:
+      # TODO: changeme promote_artifact_api: "https://zuul.opendev.org/api/tenant/{{ zuul.tenant }}"
+      promote_artifact_pipeline: gate
+      promote_artifact_type: zuul_image
+      promote_artifact_job: "{{ zuul.job | regex_replace('^osism-promote', 'osism-build') }}"
+    dependencies:
+      - osism-dispatch-promote-diskimage
+
+- job:
+    name: osism-build-diskimage-base-debuntu
+    description: |
+      An abstract base job for building Debian or Ubuntu based VM images
+    parent: osism-build-diskimage-base
+    abstract: true
+    vars:
+      build_diskimage_environment:
+        DIB_APT_LOCAL_CACHE: '0'
+        DIB_DISABLE_APT_CLEANUP: '1'
+        DIB_DEBOOTSTRAP_EXTRA_ARGS: '--no-check-gpg'
+
+- job:
+    name: osism-build-diskimage-base-el
+    description: |
+      An abstract base job for building CentOS/Rocky/clones based VM images
+    parent: osism-build-diskimage-base
+    abstract: true
+    vars:
+      build_diskimage_environment:
+        DIB_EPEL_DISABLED: '1'
+
+- job:
+    name: osism-build-diskimage-centos-9-stream
+    description: |
+      Build the OpenDev CentOS 9 Stream VM image
+    parent: osism-build-diskimage-base-el
+    image-build-name: centos-9-stream
+    vars:
+      build_diskimage_image_name: centos-9-stream
+      build_diskimage_elements:
+        - *base_elements
+        - centos-minimal
+        - epel
+      build_diskimage_environment:
+        DIB_RELEASE: '9-stream'
+
+- job:
+    name: osism-promote-diskimage-centos-9-stream
+    parent: osism-promote-diskimage-base
+    image-build-name: centos-9-stream
+
+- job:
+    name: osism-build-diskimage-debian-bookworm
+    description: |
+      Build the OpenDev Debian Bookworm VM image
+    parent: osism-build-diskimage-base-debuntu
+    image-build-name: debian-bookworm
+    vars:
+      build_diskimage_image_name: debian-bookworm
+      build_diskimage_elements:
+        - *base_elements
+        - debian-minimal
+      build_diskimage_environment:
+        DIB_RELEASE: 'bookworm'
+
+- job:
+    name: osism-promote-diskimage-debian-bookworm
+    parent: osism-promote-diskimage-base
+    image-build-name: debian-bookworm
+
+- job:
+    name: osism-build-diskimage-debian-trixie
+    description: |
+      Build the OpenDev Debian Trixie VM image
+    parent: osism-build-diskimage-base-debuntu
+    image-build-name: debian-trixie
+    vars:
+      build_diskimage_image_name: debian-trixie
+      build_diskimage_elements:
+        - *base_elements
+        - debian-minimal
+      build_diskimage_environment:
+        DIB_RELEASE: 'trixie'
+
+- job:
+    name: osism-promote-diskimage-debian-trixie
+    parent: osism-promote-diskimage-base
+    image-build-name: debian-trixie
+
+- job:
+    name: osism-build-diskimage-ubuntu-jammy
+    description: |
+      Build the OpenDev Ubuntu Jammy VM image
+    parent: osism-build-diskimage-base-debuntu
+    image-build-name: ubuntu-jammy
+    vars:
+      build_diskimage_image_name: ubuntu-jammy
+      build_diskimage_elements:
+        - *base_elements
+        - ubuntu-minimal
+      build_diskimage_environment:
+        DIB_RELEASE: 'jammy'
+        DIB_DEBIAN_COMPONENTS: 'main,universe'
+        # NOTE(ianw) 2022-05-20 : we have found a problem on some cloud
+        # providers (OVH at least) where setting SSBD mitigation flags
+        # seems to be disabled and this causes endless kernel tracebacks
+        # from writing invalid flags into MSR registers, flooding the
+        # logs.  By default spec_store_bypass_disable is set to
+        # "seccomp" which means the kernel forces every seccomp() call
+        # into this.  Setting it to prctl means userspace has to opt-in
+        # with an explicit call.  This is actually the default on more
+        # recent kernels; the reasons are many but the bug [1] goes
+        # through it with links to relevant changes.
+        #
+        # While we try and sort out either backporting this to upstream
+        # kernels or some other upstream workaround, we set
+        # spec_store_bypass_disable=prctl here to avoid this problem in
+        # our providers.  The other bits are just the dib defaults which
+        # need to be replicated when overriding this.
+        #
+        # [1] https://bugs.launchpad.net/ubuntu/+source/linux/+bug/1973839
+        DIB_BOOTLOADER_DEFAULT_CMDLINE: 'nofb nomodeset gfxpayload=text spec_store_bypass_disable=prctl'
+
+- job:
+    name: osism-promote-diskimage-ubuntu-jammy
+    parent: osism-promote-diskimage-base
+    image-build-name: ubuntu-jammy
+
+- job:
+    name: osism-build-diskimage-ubuntu-noble
+    description: |
+      Build the OpenDev Ubuntu Noble VM image
+    parent: osism-build-diskimage-base-debuntu
+    image-build-name: ubuntu-noble
+    vars:
+      build_diskimage_image_name: ubuntu-noble
+      build_diskimage_elements:
+        - *base_elements
+        - ubuntu-minimal
+      build_diskimage_environment:
+        DIB_RELEASE: 'noble'
+        DIB_DEBIAN_COMPONENTS: 'main,universe'
+
+- job:
+    name: osism-promote-diskimage-ubuntu-noble
+    parent: osism-promote-diskimage-base
+    image-build-name: ubuntu-noble
