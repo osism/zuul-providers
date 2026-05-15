@@ -1,0 +1,8 @@
+- name: "Query Zuul API for artifact information for {{ child_job }}"
+  uri:
+    url: "{{ promote_artifact_api }}/builds?{{ promote_artifact_query }}"
+  register: builds
+- name: "Include job for {{ child_job }}"
+  when: "(builds.json | length)"
+  set_fact:
+    ret_child_jobs: "{{ ret_child_jobs + [ child_job ] }}"

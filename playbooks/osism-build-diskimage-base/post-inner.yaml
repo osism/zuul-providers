@@ -1,0 +1,8 @@
+- name: Upload image
+  include_role:
+    name: upload-image-swift
+  vars:
+    upload_image_swift_cloud_config: '{{ image_upload_secret.cloud }}'
+    upload_image_swift_container: '{{ image_upload_secret.container }}'
+    upload_image_swift_format: '{{ upload_image_format }}'
+    upload_image_swift_delete_after: 259200

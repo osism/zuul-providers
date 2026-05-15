@@ -1,0 +1,39 @@
+- hosts: all
+  pre_tasks:
+    - name: Install custom element requirements
+      become: true
+      package:
+        state: present
+        name:
+          - python3-yaml
+          # The following are required for the image upload
+          - python3-openstacksdk
+          - python3-oslo.utils
+          - zstd
+    - name: Setup dib directories
+      become: true
+      shell: |
+        set -x
+        
+        mkdir -p /opt/dib_cache
+        chown {{ ansible_user }} /opt/dib_cache
+        chgrp {{ ansible_user }} /opt/dib_cache
+
+        mkdir -p /opt/dib_tmp
+
+        if [ -b /dev/vdb ]; then
+          DEV='/dev/vdb'
+        elif [ -b /dev/xvde ]; then
+          DEV='/dev/xvde'
+        fi
+
+        if [ -n "$DEV" ]; then
+          mkfs.ext4 $DEV
+          mount $DEV /opt/dib_tmp
+        fi
+
+        chown {{ ansible_user }} /opt/dib_tmp
+        chgrp {{ ansible_user }} /opt/dib_tmp
+  roles:
+    - ensure-dstat-graph
+    - run-dstat

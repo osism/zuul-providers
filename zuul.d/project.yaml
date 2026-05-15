@@ -1,0 +1,71 @@
+- project:
+    check:
+      jobs:
+        - noop
+        - osism-build-diskimage-centos-9-stream
+        - osism-build-diskimage-debian-bookworm
+        - osism-build-diskimage-debian-trixie
+        - osism-build-diskimage-ubuntu-jammy
+        - osism-build-diskimage-ubuntu-noble
+    image-build:
+      jobs:
+        - osism-build-diskimage-centos-9-stream:
+            secrets:
+              - name: image_upload_secret
+                secret: image-upload-secret
+                pass-to-parent: true
+        - osism-build-diskimage-debian-bookworm:
+            secrets:
+              - name: image_upload_secret
+                secret: image-upload-secret
+                pass-to-parent: true
+        - osism-build-diskimage-debian-trixie:
+            secrets:
+              - name: image_upload_secret
+                secret: image-upload-secret
+                pass-to-parent: true
+        - osism-build-diskimage-ubuntu-jammy:
+            secrets:
+              - name: image_upload_secret
+                secret: image-upload-secret
+                pass-to-parent: true
+        - osism-build-diskimage-ubuntu-noble:
+            secrets:
+              - name: image_upload_secret
+                secret: image-upload-secret
+                pass-to-parent: true
+    periodic-image-build:
+      jobs:
+        - osism-build-diskimage-centos-9-stream:
+            secrets:
+              - name: image_upload_secret
+                secret: image-upload-secret
+                pass-to-parent: true
+        - osism-build-diskimage-debian-bookworm:
+            secrets:
+              - name: image_upload_secret
+                secret: image-upload-secret
+                pass-to-parent: true
+        - osism-build-diskimage-debian-trixie:
+            secrets:
+              - name: image_upload_secret
+                secret: image-upload-secret
+                pass-to-parent: true
+        - osism-build-diskimage-ubuntu-jammy:
+            secrets:
+              - name: image_upload_secret
+                secret: image-upload-secret
+                pass-to-parent: true
+        - osism-build-diskimage-ubuntu-noble:
+            secrets:
+              - name: image_upload_secret
+                secret: image-upload-secret
+                pass-to-parent: true
+    promote-image-build:
+      jobs:
+        - osism-dispatch-promote-diskimage
+        - osism-promote-diskimage-centos-9-stream
+        - osism-promote-diskimage-debian-bookworm
+        - osism-promote-diskimage-debian-trixie
+        - osism-promote-diskimage-ubuntu-jammy
+        - osism-promote-diskimage-ubuntu-noble

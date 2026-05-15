@@ -1,0 +1,16 @@
+- name: Dispatch promote jobs
+  hosts: localhost
+  vars:
+    promote_artifact_query: "change={{ zuul.change }}&patchset={{ zuul.patchset }}&pipeline={{ promote_artifact_pipeline }}&job_name={{ build_artifact_job }}"
+    ret_child_jobs: []
+  tasks:
+    - name: Process job
+      include_tasks: dispatch-inner.yaml
+      with_items: "{{ zuul.child_jobs }}"
+      loop_control:
+        loop_var: child_job
+    - name: Return child job list to Zuul
+      zuul_return:
+        data:
+          zuul:
+            child_jobs: "{{ ret_child_jobs }}"

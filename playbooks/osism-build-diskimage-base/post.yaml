@@ -1,0 +1,12 @@
+- hosts: all
+  roles:
+    - dstat-graph
+  tasks:
+    - name: Collect disk usage info post image build
+      command: df
+    - name: Upload image
+      when: (image_upload_secret is defined) and (zuul_success | bool)
+      with_items: '{{ build_diskimage_formats }}'
+      loop_control:
+        loop_var: upload_image_format
+      include_tasks: post-inner.yaml
