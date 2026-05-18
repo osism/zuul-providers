@@ -36,7 +36,7 @@
     name: regiocloud-a
     section: regiocloud
 
-    image:
+    images:
       name: ubuntu-cloud
       type: cloud
       username: ubuntu
