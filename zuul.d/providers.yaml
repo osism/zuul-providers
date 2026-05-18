@@ -37,7 +37,7 @@
     section: regiocloud
 
     images:
-      name: ubuntu-cloud
-      type: cloud
-      username: ubuntu
-      image-id: 846820b2-039e-4b42-adad-daf72e0f8ea4
+      - name: ubuntu-cloud
+        type: cloud
+        username: ubuntu
+        image-id: 846820b2-039e-4b42-adad-daf72e0f8ea4
