@@ -1,5 +1,5 @@
 - nodeset:
-    name: centos-9-stream
+    name: centos-9-stream-4GB
     nodes:
       name: centos-9-stream
       label: centos-9-stream
