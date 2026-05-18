@@ -12,17 +12,13 @@
     timeout: 10800
     post-timeout: 10800
     abstract: true
-    # This causes us to run DIB from the git repo instead of the
-    # latest release.
-    required-projects:
-      - openstack/diskimage-builder
     # Temporarily fix the image build jobs to run on the nodepool
     # label without using nodesets so that we can change the nodeset
     # definitions without triggering image rebuilds during the
     # transition.
     nodeset:
       nodes:
-        - name: ubuntu-noble
+        - name: ubuntu-noble-large
           label: ubuntu-noble
     pre-run:
       - playbooks/osism-build-diskimage-base/pre.yaml
