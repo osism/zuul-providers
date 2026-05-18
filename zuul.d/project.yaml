@@ -34,7 +34,7 @@
               - name: image_upload_secret
                 secret: image-upload-secret
                 pass-to-parent: true
-    periodic-image-build:
+    periodic-midnight:
       jobs:
         - osism-build-diskimage-centos-9-stream:
             secrets:

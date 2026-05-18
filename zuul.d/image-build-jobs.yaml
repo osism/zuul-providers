@@ -18,8 +18,8 @@
     # transition.
     nodeset:
       nodes:
-        - name: ubuntu-noble-large
-          label: ubuntu-noble
+        - name: ubuntu-noble
+          label: ubuntu-cloud
     pre-run:
       - playbooks/osism-build-diskimage-base/pre.yaml
     post-run:

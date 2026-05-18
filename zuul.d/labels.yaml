@@ -51,3 +51,9 @@
     image: ubuntu-noble
     flavor: SCS-8V-32-100
     max-ready-age: 1800
+
+- label:
+    name: ubuntu-cloud
+    image: ubuntu-cloud
+    flavor: SCS-8V-32-100
+    max-ready-age: 1800
