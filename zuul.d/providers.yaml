@@ -24,6 +24,7 @@
       - debian-bookworm-large
       - debian-trixie
       - debian-trixie-large
+      - ubuntu-cloud
       - ubuntu-jammy
       - ubuntu-jammy-large
       - ubuntu-noble
