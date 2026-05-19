@@ -9,6 +9,10 @@
       import-timeout: 1800  # 30 minutes
     launch-timeout: 600
     images:
+      - name: ubuntu-cloud
+        type: cloud
+        username: ubuntu
+        image-id: 846820b2-039e-4b42-adad-daf72e0f8ea4
       - centos-9-stream
       - debian-bookworm
       - debian-trixie
@@ -35,9 +39,3 @@
 - provider:
     name: regiocloud-a
     section: regiocloud
-
-    images:
-      - name: ubuntu-cloud
-        type: cloud
-        username: ubuntu
-        image-id: 846820b2-039e-4b42-adad-daf72e0f8ea4
