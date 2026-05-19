@@ -15,8 +15,8 @@
     images:
       - name: ubuntu-cloud
         type: cloud
-        username: ubuntu
-        image-id: 846820b2-039e-4b42-adad-daf72e0f8ea4
+        username: zuul
+        image-id: c433a159-7f10-4aac-9a25-9e675d672ca2
       - centos-9-stream
       - debian-bookworm
       - debian-trixie
