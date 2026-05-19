@@ -5,6 +5,10 @@
     label-defaults:
       boot-timeout: 120
       key-name: osism-ci
+      networks:
+        - net-to-public-osism-zuul-nodepool-1                                                                                                       
+      security-groups:                                                                                                                              
+        - zuul-worker-node
     image-defaults:
       import-timeout: 1800  # 30 minutes
     launch-timeout: 600
