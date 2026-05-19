@@ -15,5 +15,9 @@
     type: zuul
 
 - image:
+    name: ubuntu-cloud
+    type: cloud
+
+- image:
     name: ubuntu-noble
     type: zuul
